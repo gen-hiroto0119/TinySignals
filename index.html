@@ -3,45 +3,142 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TinyReactive Counter</title>
+    <title>TinyReactive Todo</title>
     <style>
       :root {
-        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        --bg: radial-gradient(circle at top, #fff6dc 0%, #ffd9b4 35%, #f4f1e8 100%);
+        --card: rgba(255, 255, 255, 0.9);
+        --ink: #2c2a2a;
+        --muted: #6f6761;
+        --accent: #d84f3d;
+        --stroke: #dfd4cc;
+        --font: "Avenir Next", "Nunito Sans", "Helvetica Neue", sans-serif;
       }
 
       body {
         margin: 0;
         min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: #f6f7fb;
-      }
-
-      .counter {
-        width: min(420px, calc(100vw - 2rem));
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 1rem;
-        border-radius: 12px;
-        background: #ffffff;
-        box-shadow: 0 12px 40px rgba(11, 25, 56, 0.1);
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
       }
 
-      .counter h1 {
-        margin: 0 0 0.75rem;
-        font-size: 1.25rem;
+      .todo-shell {
+        width: min(680px, 100%);
+        padding: 1.25rem;
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        background: var(--card);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 28px 60px rgba(75, 39, 26, 0.18);
       }
 
-      .counter p {
-        margin: 0 0 0.75rem;
-        font-size: 2rem;
+      h1 {
+        margin: 0;
+        font-size: clamp(1.3rem, 1.1rem + 1vw, 1.9rem);
+        letter-spacing: 0.01em;
       }
 
-      .counter button {
-        margin-right: 0.5rem;
+      header p {
+        margin: 0.3rem 0 1rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .composer {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+      }
+
+      input,
+      button {
+        font: inherit;
+      }
+
+      .composer input {
+        border: 1px solid var(--stroke);
+        border-radius: 10px;
+        padding: 0.7rem 0.8rem;
+        background: #fffdf9;
+      }
+
+      .composer button,
+      .toolbar button {
+        border: 0;
+        border-radius: 10px;
+        padding: 0.65rem 0.95rem;
+        color: #fff;
+        background: var(--accent);
+        cursor: pointer;
+      }
+
+      button[disabled] {
+        cursor: default;
+        opacity: 0.45;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        align-items: center;
+        margin: 0.9rem 0;
+        color: var(--muted);
+      }
+
+      .todo-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .todo-list li {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.65rem;
+        border: 1px solid var(--stroke);
+        border-radius: 10px;
+        padding: 0.6rem 0.7rem;
+        background: #fff;
+      }
+
+      .todo-list li.done span {
+        color: var(--muted);
+        text-decoration: line-through;
+      }
+
+      .ghost {
+        background: #f5e8de;
+        color: #633f35;
+        border: 0;
+        border-radius: 8px;
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+      }
+
+      .empty-note {
+        min-height: 1.25rem;
+        margin: 0.8rem 0 0;
+        color: var(--muted);
+      }
+
+      @media (max-width: 560px) {
+        .composer {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/examples/counter.tsx"></script>
+    <script type="module" src="/examples/todo.tsx"></script>
   </body>
 </html>

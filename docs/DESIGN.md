@@ -56,8 +56,10 @@ Do not infer reactivity from `typeof value === "function"` alone.
 ## 4. Lifecycle and Disposal
 
 - `mount(view, root)` should return `dispose()`
+- remounting to the same root auto-disposes the previous tree
 - all effects/listeners created by `mount` must be released by `dispose()`
 - nested cleanup should be deterministic
+- `onDispose(fn)` allows component-level cleanup registration
 
 ## 5. Performance Baseline
 

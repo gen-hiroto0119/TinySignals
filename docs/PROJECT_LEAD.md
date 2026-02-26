@@ -29,7 +29,7 @@ Build a practical tiny reactive UI runtime with:
 - getter-first API (`count()` / `count.set()`)
 - JSX runtime with reactive child/prop binding
 - event props via `/^on/i` rule
-- mount-level disposal
+- mount-level disposal and `onDispose` cleanup hook
 
 ## Non-goals (v0)
 

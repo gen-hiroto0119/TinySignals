@@ -28,12 +28,14 @@ type Props = Record<string, unknown> & {
 
 type Scope = {
   add: (dispose: Dispose) => void;
+  dispose: Dispose;
 };
 
 const PROPERTY_PROPS = new Set(["value", "checked", "selected"]);
 const BOOLEAN_ATTRIBUTES = new Set(["disabled", "readonly", "required", "multiple"]);
 
 let activeScope: Scope | null = null;
+const mountedRoots = new WeakMap<ParentNode, Dispose>();
 
 function withScope<T>(scope: Scope | null, callback: () => T): T {
   const previousScope = activeScope;
@@ -48,6 +50,57 @@ function withScope<T>(scope: Scope | null, callback: () => T): T {
 
 function registerDispose(dispose: Dispose): void {
   activeScope?.add(dispose);
+}
+
+function createScope(parentScope?: Scope): Scope {
+  const disposers: Dispose[] = [];
+  let disposed = false;
+
+  const scope: Scope = {
+    add: (dispose) => {
+      if (disposed) {
+        dispose();
+        return;
+      }
+
+      disposers.push(dispose);
+    },
+    dispose: () => {
+      if (disposed) {
+        return;
+      }
+
+      disposed = true;
+
+      while (disposers.length > 0) {
+        const dispose = disposers.pop() as Dispose;
+        dispose();
+      }
+    }
+  };
+
+  if (parentScope !== undefined) {
+    parentScope.add(scope.dispose);
+  }
+
+  return scope;
+}
+
+function registerReactiveDispose(dispose: Dispose): void {
+  if (activeScope === null) {
+    dispose();
+    throw new Error("Reactive bindings require mount() scope.");
+  }
+
+  activeScope.add(dispose);
+}
+
+export function onDispose(dispose: Dispose): void {
+  if (activeScope === null) {
+    throw new Error("onDispose() must be called while rendering within mount().");
+  }
+
+  activeScope.add(dispose);
 }
 
 function normalizeChildren(value: Child): Node[] {
@@ -98,7 +151,7 @@ function createReactiveTextNode(getter: ReactiveGetter<unknown>): Text {
     }
   });
 
-  registerDispose(dispose);
+  registerReactiveDispose(dispose);
 
   return node;
 }
@@ -172,7 +225,7 @@ function applyProps(element: Element, props: Props): void {
       const dispose = effect(() => {
         setProp(element, name, value());
       });
-      registerDispose(dispose);
+      registerReactiveDispose(dispose);
       continue;
     }
 
@@ -189,7 +242,8 @@ function createElement(type: ElementType, props: Props = {}): Node {
   }
 
   if (typeof type === "function") {
-    return resolveNode(type(props));
+    const componentScope = createScope(activeScope ?? undefined);
+    return withScope(componentScope, () => resolveNode(type(props)));
   }
 
   const element = document.createElement(type);
@@ -224,24 +278,35 @@ export function jsx(type: ElementType, props: Props | null, _key?: unknown): Nod
 export const jsxs = jsx;
 
 export function mount(view: () => Child, root: ParentNode): Dispose {
-  const disposers: Dispose[] = [];
-  const scope: Scope = {
-    add: (dispose) => {
-      disposers.push(dispose);
-    }
-  };
+  const previousDispose = mountedRoots.get(root);
 
+  if (previousDispose !== undefined) {
+    previousDispose();
+  }
+
+  const scope = createScope();
   const content = withScope(scope, () => resolveNode(view()));
   root.replaceChildren(content);
 
-  return () => {
-    while (disposers.length > 0) {
-      const dispose = disposers.pop() as Dispose;
-      dispose();
+  let disposed = false;
+
+  const dispose: Dispose = () => {
+    if (disposed) {
+      return;
     }
 
-    root.replaceChildren();
+    disposed = true;
+    scope.dispose();
+
+    if (mountedRoots.get(root) === dispose) {
+      mountedRoots.delete(root);
+      root.replaceChildren();
+    }
   };
+
+  mountedRoots.set(root, dispose);
+
+  return dispose;
 }
 
 export namespace JSX {

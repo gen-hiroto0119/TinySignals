@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
     "strict": true,
     "declaration": true,
     "declarationMap": true,
@@ -18,6 +19,7 @@
   },
   "include": [
     "src",
+    "examples",
     "test",
     "tsup.config.ts"
   ]

@@ -1,4 +1,4 @@
-export { Fragment, jsxs, jsx, mount } from "./jsx-runtime";
+export { Fragment, jsxs, jsx, mount, onDispose } from "./jsx-runtime";
 export type { Child, Component } from "./jsx-runtime";
 
 import { jsx } from "./jsx-runtime";

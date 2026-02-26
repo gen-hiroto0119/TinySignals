@@ -21,3 +21,7 @@ npm run build
 npm run typecheck
 npm run test
 ```
+
+## Example
+
+- Counter sample: `examples/counter.tsx`

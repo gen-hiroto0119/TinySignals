@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import { memo, signal } from "../src/index";
-import { Fragment, jsx, jsxs, mount } from "../src/jsx-runtime";
+import { Fragment, jsx, jsxs, mount, onDispose } from "../src/jsx-runtime";
 
 describe("jsx runtime", () => {
   it("renders reactive children and snapshot children", () => {
@@ -108,5 +108,51 @@ describe("jsx runtime", () => {
 
     mount(() => jsx("hr", null), root);
     expect(root.querySelector("hr")).not.toBeNull();
+  });
+
+  it("auto-disposes previous mount when remounting same root", () => {
+    const first = signal(0);
+    const second = signal(0);
+    const root = document.createElement("div");
+
+    const disposeFirst = mount(() => jsx("span", { children: first }), root);
+    const disposeSecond = mount(() => jsx("span", { children: second }), root);
+
+    expect(root.textContent).toBe("0");
+
+    first.set(1);
+    expect(root.textContent).toBe("0");
+
+    disposeFirst();
+    expect(root.textContent).toBe("0");
+
+    second.set(2);
+    expect(root.textContent).toBe("2");
+
+    disposeSecond();
+    expect(root.textContent).toBe("");
+  });
+
+  it("supports onDispose cleanup and dispose idempotency", () => {
+    const root = document.createElement("div");
+    let cleanups = 0;
+
+    const Box = () => {
+      onDispose(() => {
+        cleanups += 1;
+      });
+
+      return jsx("div", { children: "box" });
+    };
+
+    const dispose = mount(() => jsx(Box, null), root);
+    expect(cleanups).toBe(0);
+    expect(root.textContent).toBe("box");
+
+    dispose();
+    dispose();
+
+    expect(cleanups).toBe(1);
+    expect(root.textContent).toBe("");
   });
 });

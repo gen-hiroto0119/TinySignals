@@ -33,6 +33,9 @@ type Scope = {
 
 const PROPERTY_PROPS = new Set(["value", "checked", "selected"]);
 const BOOLEAN_ATTRIBUTES = new Set(["disabled", "readonly", "required", "multiple"]);
+const EVENT_NAME_ALIASES: Record<string, string> = {
+  doubleclick: "dblclick"
+};
 
 let activeScope: Scope | null = null;
 const mountedRoots = new WeakMap<ParentNode, Dispose>();
@@ -211,7 +214,8 @@ function applyProps(element: Element, props: Props): void {
         throw new TypeError(`Event prop "${name}" must be a function.`);
       }
 
-      const eventName = name.slice(2).toLowerCase();
+      const normalizedName = name.slice(2).toLowerCase();
+      const eventName = EVENT_NAME_ALIASES[normalizedName] ?? normalizedName;
       const listener = value as EventListener;
 
       element.addEventListener(eventName, listener);

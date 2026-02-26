@@ -43,7 +43,7 @@ Build a practical tiny reactive UI runtime with:
 1. M1: Core reactivity + unit tests
 2. M2: JSX runtime + DOM binding tests
 3. M3: Mount/disposal and example app
-4. M4: API docs and first pre-release
+4. M4: API docs, local dev environment, CI, and first pre-release
 
 ## Quality Gates
 

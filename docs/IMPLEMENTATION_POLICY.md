@@ -40,7 +40,7 @@ Adopt WASM/compiler only if at least one condition is met:
 1. M1: Reactivity core + tests
 2. M2: JSX runtime + DOM semantics + tests
 3. M3: mount/dispose lifecycle + tests
-4. M4: docs/examples + pre-release
+4. M4: API docs + local dev env + CI + pre-release
 
 ## Definition of Done (v0)
 

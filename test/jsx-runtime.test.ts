@@ -85,6 +85,26 @@ describe("jsx runtime", () => {
     expect(root.childNodes.length).toBe(0);
   });
 
+  it("maps onDoubleClick to dblclick", () => {
+    const count = signal(0);
+    const root = document.createElement("div");
+
+    mount(
+      () =>
+        jsx("button", {
+          onDoubleClick: () => {
+            count.set((value) => value + 1);
+          },
+          children: "dbl"
+        }),
+      root
+    );
+
+    const button = root.querySelector("button");
+    button?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(count()).toBe(1);
+  });
+
   it("supports Fragment output", () => {
     const root = document.createElement("div");
 
@@ -154,5 +174,27 @@ describe("jsx runtime", () => {
 
     expect(cleanups).toBe(1);
     expect(root.textContent).toBe("");
+  });
+
+  it("runs nested onDispose cleanups in LIFO order", () => {
+    const root = document.createElement("div");
+    const calls: string[] = [];
+
+    const Child = () => {
+      onDispose(() => calls.push("child-1"));
+      onDispose(() => calls.push("child-2"));
+      return jsx("span", { children: "child" });
+    };
+
+    const Parent = () => {
+      onDispose(() => calls.push("parent-1"));
+      onDispose(() => calls.push("parent-2"));
+      return jsx(Child, null);
+    };
+
+    const dispose = mount(() => jsx(Parent, null), root);
+    dispose();
+
+    expect(calls).toEqual(["child-2", "child-1", "parent-2", "parent-1"]);
   });
 });

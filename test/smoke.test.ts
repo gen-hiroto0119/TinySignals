@@ -83,6 +83,28 @@ describe("tinyreactive core", () => {
     expect(runs).toBe(2);
   });
 
+  it("handles cascading updates during flush", () => {
+    const source = signal(0);
+    const derived = signal(0);
+    const seen: number[] = [];
+
+    effect(() => {
+      const value = source();
+      if (value > 0) {
+        derived.set(value * 10);
+      }
+    });
+
+    effect(() => {
+      seen.push(derived());
+    });
+
+    source.set(2);
+
+    expect(derived()).toBe(20);
+    expect(seen).toEqual([0, 20]);
+  });
+
   it("supports untrack in effect", () => {
     const count = signal(0);
     let runs = 0;

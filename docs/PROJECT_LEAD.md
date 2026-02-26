@@ -25,7 +25,7 @@ Build a practical tiny reactive UI runtime with:
 
 ## Scope (v0)
 
-- `signal`, `memo`, `effect`, `batch`, `untrack`
+- `signal`, `memo`, `computed`, `effect`, `batch`, `untrack`
 - getter-first API (`count()` / `count.set()`)
 - JSX runtime with reactive child/prop binding
 - event props via `/^on/i` rule

@@ -12,11 +12,14 @@ count.set((v) => v + 1); // updater
 count.peek(); // read (untracked)
 ```
 
-### memo
+### memo / computed
 
 ```ts
 const doubled = memo(() => count() * 2);
 doubled(); // read
+
+const enabled = computed(() => count() < 10);
+enabled(); // read
 ```
 
 ### effect / batch / untrack
@@ -24,6 +27,7 @@ doubled(); // read
 - `effect(fn)`: tracks dependencies and re-runs on change
 - `batch(fn)`: coalesces updates
 - `untrack(fn)`: reads without dependency tracking
+- `computed(fn)`: alias of `memo(fn)` for JSX readability
 
 ## 2. JSX Semantics
 
@@ -35,7 +39,7 @@ doubled(); // read
 ### Props
 
 - `/^on/i` -> always treated as event listener
-- reactive getter -> wrapped in `effect` and applied on updates
+- reactive getter (`signal` / `memo` / `computed`) -> wrapped in `effect` and applied on updates
 - other values -> one-time assignment
 
 ### Property vs Attribute
